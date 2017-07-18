@@ -54,6 +54,7 @@ NSString *const kAppiraterReminderRequestDate		= @"kAppiraterReminderRequestDate
 NSString *templateReviewURL = @"itms-apps://ax.itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?type=Purple+Software&id=APP_ID";
 NSString *templateReviewURLiOS7 = @"itms-apps://itunes.apple.com/app/idAPP_ID";
 NSString *templateReviewURLiOS8 = @"itms-apps://itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?id=APP_ID&onlyLatestVersion=true&pageNumber=0&sortOrdering=1&type=Purple+Software";
+NSString *templateReviewURLiOS10_3 = @"itms-apps://itunes.apple.com/app/idAPP_ID?action=write-review";
 
 static NSString *_appId;
 static double _daysUntilPrompt = 30;
@@ -632,6 +633,17 @@ static BOOL _alwaysUseMainBundle = NO;
 	[userDefaults setBool:YES forKey:kAppiraterRatedCurrentVersion];
 	[userDefaults synchronize];
 
+    if (NSStringFromClass([SKStoreReviewController class]) != nil) {
+        [SKStoreReviewController requestReview];
+        return;
+    }
+    
+    NSURL *reviewURL = [NSURL URLWithString:[templateReviewURLiOS10_3 stringByReplacingOccurrencesOfString:@"APP_ID" withString:[NSString stringWithFormat:@"%@", _appId]]];
+    if ([[UIApplication sharedApplication] canOpenURL:reviewURL]) {
+        [[UIApplication sharedApplication] openURL:reviewURL];
+        return;
+    }
+    
 	//Use the in-app StoreKit view if available (iOS 6) and imported. This works in the simulator.
 	if (![Appirater sharedInstance].openInAppStore && NSStringFromClass([SKStoreProductViewController class]) != nil) {
 		
